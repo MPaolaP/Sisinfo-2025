@@ -42,6 +42,8 @@
   - Promedio de nuevos clientes por año
   - Margen neto
 
+- Se definió un parámetro para cambiar el performance de los vendedor con base en el canal de ventas
+
 - Visualizaciones
   - Las misma que en powerBi pero cambia la forma de visualización del stock por categoría (a burbujas) y clientes por segmento (a diagrama de árbol).
 - Se añadió filtro para año y para mes.
