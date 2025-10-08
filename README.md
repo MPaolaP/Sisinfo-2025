@@ -17,7 +17,7 @@ Un ERP es un sistema enfocado en la gestión interna de la empresa, comúnmente 
 
 **Ejemplos de software analizados:** SAGE, ODOO, SAP
 
-![ERP](/imagenes/ERP.jpg)
+![ERP](/Imagenes/ERP.jpg)
 
 En el video se distingue dos categorías de ERP:
 
@@ -37,7 +37,7 @@ El CRM es un sistema centrado en la relación externa con los clientes, denomina
 
 **Ejemplos de software analizados:** Pipedrive, Salesforce, Zoho CRM
 
-![CRM](/imagenes/CRM.webp)
+![CRM](/Imagenes/CRM.webp)
 
 Se identifican dos tipos de plataformas CRM:
 
