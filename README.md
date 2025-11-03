@@ -1,125 +1,101 @@
-# Análisis Comparativo: ERP vs CRM
+# Funciones Lambda y Arquitectura Serverless en AWS
 
-![ERP vs CRM](/Imagenes/erp-vs-crm.webp)
+![AWS](/Imagenes/aws.jpeg)
 
-## ERP - Enterprise Resorce Planning: Planificación de Recursos Empresariales
+## 1. Arquitectura Serverless
 
-Un ERP es un sistema enfocado en la gestión interna de la empresa, comúnmente conocido como back office.
+El modelo **serverless** o “sin servidores” representa una evolución en la computación en la nube. En este enfoque, los desarrolladores no administran servidores, infraestructura ni escalamiento manualmente. En su lugar, el proveedor del servicio (como AWS) se encarga del aprovisionamiento automático de los recursos necesarios para ejecutar el código.
 
-**Funcionalidades:**
+Este paradigma ofrece varias ventajas:
 
-- Gestión de producción
-- Contabilidad empresarial
-- Control de inventario y stock
-- Administración de la cadena de suministro
-- Control administrativo general
-- Comunicación interdepartamental
+- Reducción significativa de tareas de administración.
+- Escalamiento automático basado en la demanda.
+- Pago únicamente por el tiempo de ejecución y los recursos consumidos.
+- Mayor rapidez en el desarrollo y despliegue de aplicaciones.
 
-**Ejemplos de software analizados:** SAGE, ODOO, SAP
+## 2. Funciones Lambda
 
-![ERP](/Imagenes/ERP.jpg)
+Una función Lambda es una unidad de ejecución dentro del ecosistema serverless de AWS. Permite ejecutar código en respuesta a eventos sin preocuparse por los servidores subyacentes. El usuario solo necesita subir su código y definir las condiciones o eventos que activarán la función.
 
-En el video se distingue dos categorías de ERP:
+AWS se encarga de:
 
-- **ERPs integrales:** Soluciones completas que abarcan todas las áreas del negocio
-- **ERPs ágiles:** Herramientas diseñadas para pequeñas empresas con funcionalidades específicas como facturación e inventario
+- Crear y configurar los entornos de ejecución necesarios.
+- Escalar automáticamente según la cantidad de solicitudes.
+- Gestionar la disponibilidad y la eficiencia de los recursos.
 
-## CRM - Customer Resource Management: Gestión de Relación con Clientes
+El modelo de facturación se basa en:
 
-El CRM es un sistema centrado en la relación externa con los clientes, denominado front office.
+- La memoria asignada a la función.
+- El tiempo de ejecución medido en milisegundos.
+- El número de invocaciones durante un periodo determinado.
 
-**Funcionalidades:**
+## 3. Casos de Uso
 
-- Gestión de agenda comercial
-- Atención y soporte al cliente
-- Gestión de ofertas comerciales
-- Control de procesos de venta
+Las funciones Lambda son especialmente útiles cuando se requiere ejecutar tareas breves, independientes y repetibles. Algunos casos típicos incluyen:
 
-**Ejemplos de software analizados:** Pipedrive, Salesforce, Zoho CRM
+- **Integración con servicios externos:** envío de correos electrónicos, notificaciones SMS o llamadas a APIs.
+- **Procesamiento de archivos:** redimensionar imágenes, validar contenido o convertir videos.
+- **Procesamiento de datos en tiempo real:** análisis de flujos de clics, eventos de IoT o transacciones financieras.
+- **Automatización de tareas periódicas:** ejecución programada mediante expresiones cron o eventos definidos por otros servicios de AWS.
 
-![CRM](/Imagenes/CRM.webp)
+Cada función debe enfocarse en una acción específica dentro de la lógica de negocio, lo que facilita su mantenimiento, prueba y escalabilidad.
 
-Se identifican dos tipos de plataformas CRM:
+## 4. Restricciones de Ejecución
 
-- **CRM globales:** Plataformas robustas con múltiples funcionalidades integradas
-- **CRM específicos:** Soluciones focalizadas en áreas concretas como equipos de ventas
+Una función Lambda tiene un límite máximo de ejecución de 15 minutos. Por esta razón, no se recomienda para procesos prolongados o tareas que requieran alto consumo computacional continuo.
 
-## Análisis Comparativo Detallado
+Cuando una aplicación necesita procesar grandes volúmenes de datos, se recomienda dividir el trabajo en bloques más pequeños y ejecutar varias funciones Lambda de forma secuencial o paralela.
 
-### Tabla Comparativa de Características
+## 5. Contenedores y Escalamiento Automático
 
-Se establecen las siguientes diferencias clave:
+AWS ejecuta las funciones Lambda dentro de contenedores aislados, que incluyen todo lo necesario para correr el código: sistema operativo, dependencias y bibliotecas requeridas.
 
-| Criterio                 | ERP                                       | CRM                                 |
-| ------------------------ | ----------------------------------------- | ----------------------------------- |
-| **Ámbito de aplicación** | Interno (backoffice)                      | Externo (front office)              |
-| **Objetivo estratégico** | Optimización de procesos internos         | Incremento de ventas y fidelización |
-| **Impacto financiero**   | Reducción de costes operativos            | Aumento de ingresos                 |
-| **Enfoque de datos**     | Centralización de información empresarial | Segmentación de clientes            |
-| **Tipo de decisiones**   | Operativas y de recursos                  | Comerciales y de ventas             |
-| **Automatización**       | Tareas administrativas y productivas      | Procesos comerciales                |
+Cada vez que se activa una función:
 
-## Puntos adicionales
+1. AWS crea un nuevo contenedor (si no existe uno disponible).
+2. Carga el código y lo ejecuta.
+3. Al finalizar, el contenedor se descarta o se reutiliza si llega un nuevo evento en poco tiempo.
 
-### 1. Relevancia en el Mercado Empresarial
+El reuso de contenedores mejora la eficiencia, ya que evita la recreación constante de entornos.  
+Si varios eventos llegan simultáneamente, AWS lanza varios contenedores en paralelo, gestionando de forma automática la concurrencia y el escalamiento.
 
-Ambas soluciones representan los softwares con mayor tasa de implementación en el mercado actual, justificado por su impacto directo en:
+## 6. Idempotencia
 
-- Eficiencia operativa
-- Rentabilidad empresarial
-- Gestión de aspectos críticos del negocio
+Una característica esencial al diseñar funciones Lambda es la idempotencia.  
+Este principio garantiza que, aunque una función se ejecute varias veces, el resultado final sea el mismo y no se generen efectos duplicados.
 
-### 2. Capacidad de Adaptación
+AWS asegura que cada función se ejecute “al menos una vez”, pero no garantiza que se ejecute solo una vez. Por ello, es responsabilidad del desarrollador prevenir duplicaciones, especialmente en tareas críticas como transacciones bancarias o notificaciones.
 
-Se identifica que tanto ERP como CRM presentan características de modularidad y personalización, permitiendo su implementación en:
+Una forma común de aplicar la idempotencia consiste en:
 
-- Trabajadores autónomos
-- Pequeñas y medianas empresas (pymes)
-- Grandes corporaciones
+- Asignar un identificador único a cada evento.
+- Registrar los eventos procesados en un sistema externo.
+- Evitar la repetición si el identificador ya existe.
 
-### 3. Estrategia de Integración
+## 7. Lenguajes y Eventos de Activación
 
-La integración entre ERP y CRM es fundamental para una gestión empresarial óptima. Se identifican dos modelos:
+AWS Lambda admite múltiples lenguajes de programación, incluyendo _Python, Node.js, Java, Go, Ruby y .NET Core_.  
+También es posible crear entornos personalizados mediante la API de AWS para usar otros lenguajes como C++.
 
-**Modelo 1: Solución unificada**
+Las funciones pueden ser activadas por distintos eventos:
 
-- Fabricantes que ofrecen ERP con módulo CRM integrado
-- Mayor compatibilidad y flujo de información
+- Peticiones HTTP mediante **API Gateway**.
+- Tareas programadas mediante **expresiones cron**.
+- Eventos provenientes de otros servicios de AWS, como S3, DynamoDB o SNS.
 
-**Modelo 2: Integración mediante APIs**
+Cada evento puede además entregar datos de entrada a la función, lo que permite integrarla fácilmente en flujos de procesamiento más complejos.
 
-- ERPs con conexiones nativas a plataformas CRM populares
-- Flexibilidad para elegir mejores soluciones de cada categoría
+## 8. Buenas Prácticas
 
-**Beneficio principal:** La información capturada en el CRM alimenta automáticamente el ERP, permitiendo una visión holística del negocio.
+- Diseñar funciones pequeñas y específicas.
+- Controlar los tiempos de ejecución para evitar sobrecostos.
+- Implementar idempotencia en operaciones críticas.
+- Dividir procesos extensos en tareas independientes o por lotes.
+- Usar logs y métricas para evaluar el rendimiento.
 
-## Objetivos Empresariales Diferenciados
+## 9. Implementación: Cola funcional en AWS Lambda
 
-### Finalidad del ERP
+Se implementó una estructura de datos tipo Cola (Queue) utilizando funciones _lambda_ y cierres (_closures_) en Python.  
+El código fue adaptado para ejecutarse en **AWS Lambda**, incluyendo la función `lambda_handler` como punto de entrada.
 
-El objetivo central de un ERP es:
-
-- Optimizar procesos operativos internos
-- Automatizar tareas administrativas y de producción
-- Centralizar información departamental en una plataforma única
-- Facilitar la toma de decisiones basada en datos
-- Incrementar la productividad mediante análisis de recursos
-
-### Finalidad del CRM
-
-El propósito fundamental de un CRM es:
-
-- Comprender profundamente las necesidades del cliente
-- Gestionar la relación comercial de forma estratégica
-- Identificar tendencias de mercado y comportamiento de compra
-- Automatizar y optimizar el proceso de ventas
-- Mejorar la estrategia de fidelización de clientes
-
-## Recomendación de Implementación
-
-Para la implementación exitosa se requiere:
-
-1. Evaluar las necesidades específicas de cada organización
-2. Considerar la integración entre ambos sistemas
-3. Reconocer que cada empresa tiene requisitos únicos
-4. Utilizar herramientas de comparación para tomar decisiones informadas
+La función permite encolar y desencolar elementos enviados en el evento de entrada, devolviendo el estado actual de la cola, el elemento eliminado y su tamaño final.
