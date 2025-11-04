@@ -1,33 +1,86 @@
-# Estructura de datos: Cola (Queue)
-# Versión compatible con AWS Lambda
+"""
+AWS Lambda Example: Simple REST API
+------------------------------------
 
-def make_queue():
-    queue = []
+Este ejemplo muestra cómo construir una función Lambda en Python que se comporta
+como una pequeña API con rutas GET y POST usando API Gateway.
 
-    return {
-        "enqueue": lambda x: queue.append(x),
-        "dequeue": lambda: queue.pop(0) if queue else None,
-        "peek": lambda: queue[0] if queue else None,
-        "is_empty": lambda: len(queue) == 0,
-        "size": lambda: len(queue),
-        "show": lambda: queue.copy()
-    }
+✅ Funcionalidades:
+- Responde a solicitudes GET con un saludo personalizado.
+- Acepta solicitudes POST para registrar un usuario (simulado en memoria).
+- Devuelve respuestas con formato JSON y códigos HTTP adecuados.
 
-# Función principal requerida por AWS Lambda
+acceder con URLs tipo:
+   - GET  → https://.../default/apiLambdaExample?name=Maria
+   - POST → https://.../default/apiLambdaExample  (con cuerpo JSON)
+
+📦 Ejemplo de cuerpo POST:
+{
+  "username": "maria123",
+  "email": "maria@example.com"
+}
+"""
+
+import json
+
+# Simulamos una "base de datos" en memoria
+USERS = []
+
+
 def lambda_handler(event, context):
-    q = make_queue()
+    """
+    Manejador principal de la función Lambda.
+    Interpreta el método HTTP y delega la acción correspondiente.
+    """
 
-    # Cargar algunos valores de ejemplo o desde el evento
-    valores = event.get("valores", ["A", "B", "C"])
-    for v in valores:
-        q["enqueue"](v)
+    # Extraer el método HTTP y ruta del evento
+    http_method = event.get("httpMethod", "GET")
+    path = event.get("path", "/")
 
-    # Simular operación de dequeue (eliminar primero)
-    eliminado = q["dequeue"]()
+    # Determinar la acción según el método
+    if http_method == "GET":
+        return handle_get(event)
+    elif http_method == "POST":
+        return handle_post(event)
+    else:
+        return response(405, {"error": f"Method {http_method} not allowed"})
 
-    # Retornar resultado como JSON
+
+def handle_get(event):
+    """Maneja solicitudes GET (por ejemplo, saludo personalizado)."""
+    name = event.get("queryStringParameters", {}).get("name", "Visitor")
+    message = f"Hello, {name}! Welcome to our AWS Lambda API."
+    return response(200, {"message": message})
+
+
+def handle_post(event):
+    """Maneja solicitudes POST (registrar usuario)."""
+
+    try:
+        body = json.loads(event.get("body", "{}"))
+    except json.JSONDecodeError:
+        return response(400, {"error": "Invalid JSON format"})
+
+    username = body.get("username")
+    email = body.get("email")
+
+    if not username or not email:
+        return response(400, {"error": "Missing 'username' or 'email'"})
+
+    # Simulamos guardar usuario
+    USERS.append({"username": username, "email": email})
+
+    return response(201, {
+        "message": "User registered successfully",
+        "user": {"username": username, "email": email},
+        "total_users": len(USERS)
+    })
+
+
+def response(status_code, body_dict):
+    """Crea una respuesta estándar con formato JSON."""
     return {
-        "cola_actual": q["show"](),
-        "elemento_eliminado": eliminado,
-        "tamaño": q["size"]()
+        "statusCode": status_code,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps(body_dict)
     }
